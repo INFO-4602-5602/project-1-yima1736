@@ -1,42 +1,51 @@
 <html>
 <head>
 <title>Project 0</title>
-<style type="text/css" href="project0.css"></style>
+<link rel="stylesheet" type="text/css" href="project1.css"></link>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <!--Put your D3 import statement between these two lines-->
-    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
 <!--Put your D3 import statement between these two lines-->
 </head>
 
 <body>
 	<div id="partOne">
         <h1>Part One: </h1>
-        I've made a change!
 	</div>
-    
+
     <div id="partTwo">
         <h1>Part Two: </h1>
-        <div id="barchart">
-        </div>
-	</div>
-    
-    <div id="partThree">
-        <h1>Part Three &amp; Four: </h1>
         <div id="scatterplot">
             <p id="scatterLabel"></p>
         </div>
 	</div>
-    
+
+    <div id="partThree">
+        <h1>Part Three &amp; Four: </h1>
+        <div id="linegraph">
+        </div>
+	</div>
+
     <div id="partFive">
         <h1>Part Five: </h1>
         <div id="scatterplotSet">
         </div>
 	</div>
-    
-    <script type="text/javascript">
-        // Put your part one code here ***********************
 
-        
+    <script type="text/javascript">
+      d3.csv('data/anscombe_I.csv', function(error, data) {
+        checkDataset(data);
+      });
+      d3.csv('data/anscombe_II.csv', function(error, data) {
+        checkDataset(data);
+      });
+      d3.csv('data/anscombe_III.csv', function(error, data) {
+        checkDataset(data);
+      });
+      d3.csv('data/anscombe_IV.csv', function(error, data) {
+        checkDataset(data);
+      });
+
         // Leave this to test your data uploading. All data uploading should be above this line
         function checkDataset(dataset) {
             if (dataset.length == 11)
@@ -44,15 +53,389 @@
             else
                 $("#partOne").append("<p>data loaded incorrectly. Try using the debugger to help you find the bug!</p>");
         }
-        
+
         // Put your part two code here ***********************
-        
+
+
+        //Load dataset
+         d3.csv("data/anscombe_I.csv", function(error, data) {
+         if(error) throw error;
+
+         //Format the data   search on the website https://www.cnblogs.com/fangshidaima/p/5910604.html
+         data.forEach(function(d){
+           d.x = parseFloat(d.x); // search on the website http://www.daliane.com/d3_js_xue_xi_bi_ji_ba_zhe_xian_tu_de_shu_biao_xiang_ying_he_xiang_xia_zuan_qu/
+           d.y = parseFloat(d.y);
+         });
+
+         // Set dimensions and margins of the graph
+         var margin = {top: 20, right: 20, bottom:30, left: 50}; // // Margin around visualization
+         var width = 600 - margin.left - margin.right;
+         var height = 400 - margin.top - margin.bottom;
+
+
+         //ranges for x and y axes
+         var xVal = d3.scaleLinear().range([0, width]);
+         var yVal = d3.scaleLinear().range([height, 0]);
+
+
+        // append the svg object to the part 1
+        var svg = d3.select("#scatterplot")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")" );
+
+
+         //Scale the range of the dataset
+         xVal.domain([0, d3.max(data, function(d) { return d.x; })]);
+         yVal.domain([0, d3.max(data, function(d) { return d.y; })]);
+
+
+         //add scatterplot
+         svg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("r", 5)
+            .attr("fill", "red")
+            .attr("cx", function(d){return xVal(d.x);})
+            .attr("cy", function(d){return yVal(d.y);})
+
+            //cite on the website http://www.daliane.com/d3_js_xue_xi_bi_ji_ba_zhe_xian_tu_de_shu_biao_xiang_ying_he_xiang_xia_zuan_qu/
+            .on("mouseover", function(d,i){
+               d3.select(this)
+                 .transition()
+                 .duration(50)
+                 .attr("r", 8)
+                 .style("fill", "red");
+               })
+            .on("mouseout", function(d,i){
+                d3.select(this)
+                  .transition()
+                  .duration(50)
+                  .attr("r",5)
+                  .style("fill", "red");
+                })
+
+            .on("click", function(d) {
+              d3.select("#scatterLabel")
+                .text("X: "+ d.x+" "+ "Y: "+ d.y);
+              });
+
+         //Add the X axis
+         svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+
+            .call(d3.axisBottom(xVal));
+         //Add the Y aixs
+         svg.append("g")
+
+            .call(d3.axisLeft(yVal));
+       });
+
+
+
         // Put your part three & four code here ***********************
-        
+
+        //Load dataset
+        d3.csv("data/anscombe_I.csv", function(error, data) {
+          if(error) throw error;
+
+          //Format the data
+            data.forEach(function(d){
+              d.x = parseFloat(d.x);
+              d.y = parseFloat(d.y);
+            });
+
+            // Set dimensions and margins of the graph
+              var margin = {top: 20, right: 20, bottom:30, left: 50}; // // Margin around visualization
+              var width = 600 - margin.left - margin.right;
+              var height = 400 - margin.top - margin.bottom;
+
+              //set ranges
+              var xVal = d3.scaleLinear().range([0, width]);
+              var yVal = d3.scaleLinear().range([height, 0]);
+
+          // find the minimum and maximum value in our data
+              xVal.domain([d3.min(data, function(d) { return d.x;}), d3.max(data, function(d){return d.x;}) +1 ]);
+              yVal.domain([0, d3.max(data, function(d) { return d.y; }) +1 ]);
+
+          //let the line connect the dots one by one
+              data.sort(function(a,b){
+                   return d3.ascending(a.x,b.x);
+              });
+          // line can help us to place the value.
+           var line = d3.line()
+                             .x(function(d){ return xVal(d.x); })
+                             .y(function(d){ return yVal(d.y); })
+
+          // append the svg object to the part 3 & 4
+           var svg = d3.select("#linegraph")
+                       .append("svg")
+                       .attr("width", width + margin.left + margin.right)
+                       .attr("height", height + margin.top + margin.bottom)
+                       .append("g")
+                       .attr("transform", "translate(" + margin.left + "," + margin.top + ")" );
+
+        //Add the valueline path
+           svg.append("g")
+              .append("path")
+              .data([data])
+              .attr("class", "line")
+              .attr("d", line)
+              .attr("fill", "none")
+              .attr("stroke-width",3)
+              .attr("stroke", "black");
+
+           //Add scatterplot
+           svg.selectAll("circle")
+              .data(data)
+              .enter()
+              .append("circle")
+              .attr("r", 5)
+              .attr("fill", "red")
+
+              .attr("cx", function(d){return xVal(d.x);})
+              .attr("cy", function(d){return yVal(d.y);});
+
+          //Add the X axis
+          svg.append("g")
+             .attr("transform", "translate(0," + height + ")")
+             .call(d3.axisBottom(xVal));
+          //Add the Y aixs
+          svg.append("g")
+             .call(d3.axisLeft(yVal));
+      });
+
+
+        // Add line graph
+
+
+
+
         // Put your part five code here ***********************
-        
+
+        d3.csv("data/anscombe_I.csv",function(data){
+
+         //Format the data
+          data.forEach(function(d) {
+             d.x=parseFloat(d.x);
+             d.y=parseFloat(d.y);
+           });
+
+           // Set dimensions and margins of the graph
+             var margin = {top: 20, right: 20, bottom:30, left: 50}; // // Margin around visualization
+             var width = 300 - margin.left - margin.right;
+             var height = 300 - margin.top - margin.bottom;
+
+
+           //set ranges
+       var xVal = d3.scaleLinear().range([0,width]);
+       var yVal = d3.scaleLinear().range([height,0]);
+
+          //Scale the range of the dataset
+       xVal.domain([0, d3.max(data,function(d)  {return d.x;})]);
+       yVal.domain([0, d3.max(data,function(d) {return d.y})]);
+
+       // Append the svg object to part 5
+       var svg = d3.select("#scatterplotSet")
+                   .append("svg")
+                   .attr("width", width + margin.left + margin.right)
+                   .attr("height", height + margin.top + margin.bottom)
+                   .append("g")
+                   .attr("transform", "translate(" + margin.left + "," + margin.top + ")" );
+
+       //add scatterplot
+       svg.selectAll("circle")
+             .data(data)
+             .enter()
+             .append("circle")
+             .attr("r",5)
+             .attr("fill","red")
+             .attr("cx", function(d){return xVal(d.x);})
+             .attr("cy",function(d){return yVal(d.y);})
+
+       //Add the X axis
+           svg.append("g")
+              .attr("transform","translate(0,"+height+")")
+              .call(d3.axisBottom(xVal))
+           svg.append("g")
+              .call(d3.axisLeft(yVal))
+
+           //adding label
+             svg.append("text")
+                .attr("x",(width /2))
+                .attr("y",0 - (margin-top /2))
+                .attr("text-anchor","middle")
+                .style("font-size","15px")
+                .text("Anscombe I");
+     });
+
+     d3.csv("data/anscombe_II.csv",function(data){
+
+         data.forEach(function(d){
+           d.x=parseFloat(d.x);
+           d.y=parseFloat(d.y);
+         });
+         // Set dimensions and margins of the graph
+           var margin = {top: 20, right: 20, bottom:30, left: 50}; // // Margin around visualization
+           var width = 300 - margin.left - margin.right;
+           var height = 300 - margin.top - margin.bottom;
+
+
+         //set ranges
+     var xVal = d3.scaleLinear().range([0,width]);
+     var yVal = d3.scaleLinear().range([height,0]);
+
+        //Scale the range of the dataset
+     xVal.domain([0, d3.max(data,function(d)  {return d.x;})]);
+     yVal.domain([0, d3.max(data,function(d) {return d.y})]);
+
+     // Append the svg object to part 5
+     var svg = d3.select("#scatterplotSet")
+                 .append("svg")
+                 .attr("width", width + margin.left + margin.right)
+                 .attr("height", height + margin.top + margin.bottom)
+                 .append("g")
+                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")" );
+
+     //add scatterplot
+     svg.selectAll("circle")
+           .data(data)
+           .enter()
+           .append("circle")
+           .attr("r",5)
+           .attr("fill","red")
+           .attr("cx", function(d){return xVal(d.x);})
+           .attr("cy",function(d){return yVal(d.y);})
+
+     //Add the X axis
+         svg.append("g")
+            .attr("transform","translate(0,"+height+")")
+            .call(d3.axisBottom(xVal))
+         svg.append("g")
+            .call(d3.axisLeft(yVal))
+
+         //adding label
+           svg.append("text")
+              .attr("x",(width /2))
+              .attr("y",0 - (margin-top /2))
+              .attr("text-anchor","middle")
+              .style("font-size","15px")
+              .text("Anscombe II");
+   });
+
+   d3.csv("data/anscombe_III.csv",function(data){
+
+       data.forEach(function(d){
+         d.x=parseFloat(d.x);
+         d.y=parseFloat(d.y);
+       });
+       // Set dimensions and margins of the graph
+         var margin = {top: 20, right: 20, bottom:30, left: 50}; // // Margin around visualization
+         var width = 300 - margin.left - margin.right;
+         var height = 300 - margin.top - margin.bottom;
+
+
+       //set ranges
+   var xVal = d3.scaleLinear().range([0,width]);
+   var yVal = d3.scaleLinear().range([height,0]);
+
+      //Scale the range of the dataset
+   xVal.domain([0, d3.max(data,function(d)  {return d.x;})]);
+   yVal.domain([0, d3.max(data,function(d) {return d.y})]);
+
+   // Append the svg object to part 5
+   var svg = d3.select("#scatterplotSet")
+               .append("svg")
+               .attr("width", width + margin.left + margin.right)
+               .attr("height", height + margin.top + margin.bottom)
+               .append("g")
+               .attr("transform", "translate(" + margin.left + "," + margin.top + ")" );
+
+   //add scatterplot
+   svg.selectAll("circle")
+         .data(data)
+         .enter()
+         .append("circle")
+         .attr("r",5)
+         .attr("fill","red")
+         .attr("cx", function(d){return xVal(d.x);})
+         .attr("cy",function(d){return yVal(d.y);})
+
+   //Add the X axis
+       svg.append("g")
+          .attr("transform","translate(0,"+height+")")
+          .call(d3.axisBottom(xVal))
+       svg.append("g")
+          .call(d3.axisLeft(yVal))
+
+       //adding label
+         svg.append("text")
+            .attr("x",(width /2))
+            .attr("y",0 - (margin-top /2))
+            .attr("text-anchor","middle")
+            .style("font-size","15px")
+            .text("Anscombe III");
+  });
+
+ d3.csv("data/anscombe_IV.csv",function(data){
+
+     data.forEach(function(d){
+       d.x=parseFloat(d.x);
+       d.y=parseFloat(d.y);
+     });
+     // Set dimensions and margins of the graph
+       var margin = {top: 20, right: 20, bottom:30, left: 50}; // // Margin around visualization
+       var width = 300 - margin.left - margin.right;
+       var height = 300 - margin.top - margin.bottom;
+
+
+     //set ranges
+ var xVal = d3.scaleLinear().range([0,width]);
+ var yVal = d3.scaleLinear().range([height,0]);
+
+    //Scale the range of the dataset
+ xVal.domain([0, d3.max(data,function(d)  {return d.x;})]);
+ yVal.domain([0, d3.max(data,function(d) {return d.y})]);
+
+ // Append the svg object to part 5
+ var svg = d3.select("#scatterplotSet")
+             .append("svg")
+             .attr("width", width + margin.left + margin.right)
+             .attr("height", height + margin.top + margin.bottom)
+             .append("g")
+             .attr("transform", "translate(" + margin.left + "," + margin.top + ")" );
+
+ //add scatterplot
+ svg.selectAll("circle")
+       .data(data)
+       .enter()
+       .append("circle")
+       .attr("r",5)
+       .attr("fill","red")
+       .attr("cx", function(d){return xVal(d.x);})
+       .attr("cy",function(d){return yVal(d.y);})
+
+ //Add the X axis
+     svg.append("g")
+        .attr("transform","translate(0,"+height+")")
+        .call(d3.axisBottom(xVal))
+     svg.append("g")
+        .call(d3.axisLeft(yVal))
+
+     //adding label
+       svg.append("text")
+          .attr("x",(width /2))
+          .attr("y",0 - (margin-top /2))
+          .attr("text-anchor","middle")
+          .style("font-size","15px")
+          .text("Anscombe IV");
+ });
     </script>
 </body>
 
 
 </html>
+
