@@ -1,4 +1,4 @@
-Hi everyone, I did this project with Yonghao Zhang, Tianlun Zhao, Gongyuan Xing.
+Hi everyone, I did this project with Yonghao Zhang, Hathaway Zhang, Tianlun Zhao, Gongyuan Xing.
 
 There is a problem I don't know how to fix. When I refresh my website, Part 5 is not unstable, it will show 4 graphs in a random positons.
 
